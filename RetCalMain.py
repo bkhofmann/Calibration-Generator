@@ -88,7 +88,7 @@ def gengcode ():
         cnt = int(nt-1)
 
         for loopx in range(int(nt)):
-            file.write(f";{int(lt)} layers      {round(Decimal(srs+irs*cnt),2)}      {round(Decimal(tsh+tih*cnt),2)}      {round(Decimal(sre+ire*cnt),2)}\n")
+            file.write(f";{int(lt)} layers      {round(Decimal(srs+irs*cnt),2)}      {round(Decimal(tsh+tih*cnt),2)}      {round(Decimal(fs+fsi*cnt),2)}      {round(Decimal(sre+ire*cnt),2)}\n")
             cnt = cnt-1
 
 
