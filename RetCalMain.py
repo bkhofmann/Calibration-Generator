@@ -70,8 +70,10 @@ def gengcode ():
         fs = float(ui.speedFan.text())
         fsi = float(ui.speedFanIncrement.text())
         #{Ben
-        sre = float(0)
-        ire = float(0.01)
+        sre = float(0.05) #starting de-retract extra distance
+        ire = float(0.05) #increment de-retract extra distance
+        sds = srs #float(5) #starting de-retract speed
+        ids = irs #float(5) #increment de-retract speed
         #}Ben
         lh = float(ui.layerHeight.text())
         ts = float(ui.speedTravel.text())
@@ -81,14 +83,14 @@ def gengcode ():
 
         file.write(f";Variables by Height\n")
         file.write(f";\n")
-        file.write(f";Height         Retraction  Nozzle      Fan         Extra De-retract \n")
-        file.write(f";               Speed       Temp        Speed       Distance\n")
+        file.write(f";Height         Retraction     De-retract      Nozzle      Fan         Extra De-retract \n")
+        file.write(f";               Speed          Speed           Temp        Speed       Distance\n")
         file.write(f";\n")
 
         cnt = int(nt-1)
 
         for loopx in range(int(nt)):
-            file.write(f";{int(lt)} layers      {round(Decimal(srs+irs*cnt),2)}      {round(Decimal(tsh+tih*cnt),2)}      {round(Decimal(fs+fsi*cnt),2)}      {round(Decimal(sre+ire*cnt),2)}\n")
+            file.write(f";{int(lt)} layers      {round(Decimal(srs+irs*cnt),2)}             {round(Decimal(sds+ids*cnt),2)}             {round(Decimal(tsh+tih*cnt),2)}      {round(Decimal(fs+fsi*cnt),2)}      {round(Decimal(sre+ire*cnt),2)}\n")
             cnt = cnt-1
 
 
@@ -130,7 +132,9 @@ def gengcode ():
         file.write(f";Increment Retraction 			{ird}\n")
         file.write(f";Start Retraction Speed 		{srs}\n")
         file.write(f";Retraction Speed Increment 	{irs}\n")
-        #{Ben        
+        #{Ben
+        file.write(f";Starting De-Retract Speed     {sds}\n")
+        file.write(f";De-Retract Speed Increment 	{ids}\n")
         file.write(f";Starting Extra De-Retract Distance {sre}\n")
         file.write(f";Increment Extra De-Restract Distance {ire}\n")
         #}Ben        
@@ -166,18 +170,22 @@ def gengcode ():
 
 #start Gcode
         file.write(f";Start Gcode\n")
-        file.write(f"M140 S{int(tb)}\n")
-        file.write(f"M105\n")
-        file.write(f"M190 S{int(tb)}\n")
-        file.write(f"M104 S{int(tsh)}\n")
-        file.write(f"M105\n")
-        file.write(f"M109 S{int(tsh)}\n")
-        file.write(f"M82\n")
-        file.write(f"G28\n")
-        file.write(f"G92 E0\n")
-        file.write(f"G1 F200 E1\n")
-        file.write(f"G92 E0\n")
+        # file.write(f"M140 S{int(tb)}\n")
+        # file.write(f"M105\n")
+        # file.write(f"M190 S{int(tb)}\n")
+        # file.write(f"M104 S{int(tsh)}\n")
+        # file.write(f"M105\n")
+        # file.write(f"M109 S{int(tsh)}\n")
+        # file.write(f"M82\n")
+        # file.write(f"G28\n")
+        # file.write(f"G92 E0\n")
+        # file.write(f"G1 F200 E1\n")
+        # file.write(f"G92 E0\n")
 
+        file.write(f"PRINT_START EXTRUDER_TEMP={int(tsh)} BED_TEMP={int(tb)} MATERIAL=PLA\n")
+        file.write(f"SET_PRESSURE_ADVANCE EXTRUDER=extruder ADVANCE=0.9\n")
+        file.write(f"SET_GCODE_OFFSET Z=-0.08\n")
+        
         file.write(f"{sgcode}\n")
 
         file.write(f";\n")
@@ -289,22 +297,22 @@ def gengcode ():
             file.write(f"G1 E{round(Decimal(srd+ird*0),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*0)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*0)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*1),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*1)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*1)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*2),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*2)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*2)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*3),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*3)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*3)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
 
             #Layer Marker Bottom Right
@@ -318,22 +326,22 @@ def gengcode ():
             file.write(f"G1 E{round(Decimal(srd+ird*4),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*4)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*4)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*5),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*5)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*5)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*6),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*6)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*6)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*7),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*7)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*7)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
 
             #Layer Marker Top Right
@@ -347,22 +355,22 @@ def gengcode ():
             file.write(f"G1 E{round(Decimal(srd+ird*8),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*8)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*8)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*9),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*9)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*9)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*10),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*10)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*10)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*11),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} Y10\n")
             file.write(f"G0 F{int(ts)*60} Y-10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*11)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*11)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
 
             #Layer Marker Top Left
@@ -376,22 +384,22 @@ def gengcode ():
             file.write(f"G1 E{round(Decimal(srd+ird*12),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*12)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*12)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*13),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*13)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*13)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*14),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*14)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*14)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
             file.write(f"G1 E{round(Decimal(srd+ird*15),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
             file.write(f"G0 F{int(ts)*60} X-10\n")
             file.write(f"G0 F{int(ts)*60} X10\n")
-            file.write(f"G1 E{round(Decimal((srd+ird*15)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+            file.write(f"G1 E{round(Decimal((srd+ird*15)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
             file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
 
             #Zup layer height
@@ -410,22 +418,22 @@ def gengcode ():
                 file.write(f"G1 E{round(Decimal(srd+ird*0),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*0)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*0)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*1),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*1)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*1)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*2),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*2)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*2)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*3),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*3)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*3)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X10 E{round(Decimal(eValueresult),5)}\n")
 
             #Right
@@ -433,22 +441,22 @@ def gengcode ():
                 file.write(f"G1 E{round(Decimal(srd+ird*4),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*4)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*4)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*5),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*5)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*5)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*6),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*6)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*6)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*7),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*7)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*7)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y10 E{round(Decimal(eValueresult),5)}\n")
 
                 #Top
@@ -456,22 +464,22 @@ def gengcode ():
                 file.write(f"G1 E{round(Decimal(srd+ird*8),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*8)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*8)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*9),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*9)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*9)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*10),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*10)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*10)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*11),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} Y10\n")
                 file.write(f"G0 F{int(ts)*60} Y-10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*11)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*11)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} X-10 E{round(Decimal(eValueresult),5)}\n")
 
             #Left
@@ -479,22 +487,22 @@ def gengcode ():
                 file.write(f"G1 E{round(Decimal(srd+ird*12),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*12)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*12)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*13),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*13)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*13)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*14),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*14)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*14)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
                 file.write(f"G1 E{round(Decimal(srd+ird*15),5) * -1} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
                 file.write(f"G0 F{int(ts)*60} X-10\n")
                 file.write(f"G0 F{int(ts)*60} X10\n")
-                file.write(f"G1 E{round(Decimal((srd+ird*15)+(sre+ire*loopbigcount)),5)} F{round(Decimal((srs+irs*loopbigcount) * 60),2)}\n")
+                file.write(f"G1 E{round(Decimal((srd+ird*15)+(sre+ire*loopbigcount)),5)} F{round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
                 file.write(f"G1 F{int(ps*60)} Y-10 E{round(Decimal(eValueresult),5)}\n")
 
                 file.write(f"G1 Z{lh}\n")
@@ -505,20 +513,22 @@ def gengcode ():
 
     #End Game
 
-    #Raise 5mm
-        file.write(f"G1 Z5\n")    
-    #Absolute Position
-        file.write(f"G90\n")
-    #Home X Y
-        file.write(f"G28 X0 Y0\n")
-    #Turn off Steppers
-        file.write(f"M84\n")
-    #Turn off Fan
-        file.write(f"M107\n")
-    #Turn off Hotend
-        file.write(f"M104 S0\n")
-    #Turn off Bed
-        file.write(f"M140 S0\n")
+    # #Raise 5mm
+    #     file.write(f"G1 Z5\n")    
+    # #Absolute Position
+    #     file.write(f"G90\n")
+    # #Home X Y
+    #     file.write(f"G28 X0 Y0\n")
+    # #Turn off Steppers
+    #     file.write(f"M84\n")
+    # #Turn off Fan
+    #     file.write(f"M107\n")
+    # #Turn off Hotend
+    #     file.write(f"M104 S0\n")
+    # #Turn off Bed
+    #     file.write(f"M140 S0\n")
+    #Print_End macro
+        file.write(f"PRINT_END\n")
 
 
 
