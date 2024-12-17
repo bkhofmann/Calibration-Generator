@@ -70,8 +70,8 @@ def gengcode ():
         fs = float(ui.speedFan.text())
         fsi = float(ui.speedFanIncrement.text())
         #{Ben
-        sre = float(0.05) #starting de-retract extra distance
-        ire = float(0.05) #increment de-retract extra distance
+        sre = float(0) #starting de-retract extra distance
+        ire = float(0) #increment de-retract extra distance
         sds = srs #float(5) #starting de-retract speed
         ids = irs #float(5) #increment de-retract speed
         #}Ben
