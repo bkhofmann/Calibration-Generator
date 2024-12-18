@@ -185,6 +185,7 @@ def gengcode ():
         file.write(f"PRINT_START EXTRUDER_TEMP={int(tsh)} BED_TEMP={int(tb)} MATERIAL=PLA\n")
         file.write(f"SET_PRESSURE_ADVANCE EXTRUDER=extruder ADVANCE=0.9\n")
         file.write(f"SET_GCODE_OFFSET Z=-0.06\n")
+        file.write(f"M82\n")
         
         file.write(f"{sgcode}\n")
 
