@@ -284,7 +284,7 @@ def gengcode ():
 
             file.write(f";Layer {layer}\n")
 
-            file.write(f"SET_RETRACTION RETRACT_SPEED={round(Decimal((srs+irs*loopbigcount) * 60),2)} UNRETRACT_EXTRA_LENGTH={round(Decimal(sre+ire*loopbigcount),5)} UNRETRACT_SPEED={round(Decimal((sds+ids*loopbigcount) * 60),2)}\n")
+            file.write(f"SET_RETRACTION RETRACT_SPEED={round(Decimal(srs+irs*loopbigcount),2)} UNRETRACT_EXTRA_LENGTH={round(Decimal(sre+ire*loopbigcount),5)} UNRETRACT_SPEED={round(Decimal(sds+ids*loopbigcount),2)}\n")
 
             #Layer Marker Bottom Left
             file.write(f"G1 F{int(ps*60)} X-2 E{round(Decimal(corenermarker),5)}\n")
